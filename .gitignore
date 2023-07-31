@@ -1,0 +1,4 @@
+Project/*
+!Project/*.uvprojx
+vscode/*
+
