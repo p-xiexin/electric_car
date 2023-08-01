@@ -387,12 +387,12 @@ void Set_motor_speed(int motor1_pwm, int motor2_pwm, int motor3_pwm, int motor4_
 	if(motor4_pwm > 0)//M4
 	{
 		GPIO_ResetBits(GPIOA, GPIO_Pin_6);
-		TIM_SetCompare1(TIM8, motor4_pwm);
+		TIM_SetCompare1(TIM1, motor4_pwm);
 	}
 	else
 	{
 		GPIO_SetBits(GPIOA, GPIO_Pin_6);
-		TIM_SetCompare1(TIM8, -(motor4_pwm));
+		TIM_SetCompare1(TIM1, -(motor4_pwm));
 	}
 	
 }
