@@ -24,7 +24,7 @@ int main(void)
 {
 	
 	User_LCD_Start();
-	led_blue_on();
+	
 	BSP_Init();
 //	
 //	
@@ -45,8 +45,7 @@ void BSP_Init(void)
 
 	//初始化滴答时钟
 	delay_init(configTICK_RATE_HZ);
-	//motor_init
-	Motor_Init();
+	
 	//encoder_init
 	Encoder_All_Init();
 	
@@ -68,8 +67,11 @@ void User_LCD_Start(void)
 	buzzer_init();
 	Key_init();
 	led_init();
-	led_green_on();
-//	Para_Task_Start();
+	led_blue_on();
+//	led_green_on();
+	//motor_init
+	Motor_Init();
+	Para_Task_Start();
 	
 }
 

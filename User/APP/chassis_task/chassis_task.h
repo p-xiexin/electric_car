@@ -20,6 +20,7 @@
 #include "remote_control.h"
 #include "pid.h"
 #include "jy901.h"
+#include "user_ui.h"
 // #include "CAN_Receive.h"
 #include "user_lib.h"
 #include "motor.h"
@@ -112,6 +113,8 @@ typedef struct
 {
   const RC_ctrl_t *chassis_RC;               //底盘使用的遥控器指针
   const fp32 *chassis_INS_angle;             //获取陀螺仪解算出的欧拉角指针
+  const Para_change_struct *para;
+  const Para_change_struct *task;
   chassis_mode_e chassis_mode;               //底盘控制状态机
   chassis_mode_e last_chassis_mode;          //底盘上次控制状态机
   Chassis_Motor_t motor_chassis[4];          //底盘电机数据

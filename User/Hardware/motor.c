@@ -21,7 +21,7 @@ static void Motor_Init_TIM1(void)
 	GPIO_InitTypeDef GPIO_InitStruct;                             
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);   //使能定时器1时钟
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);  //使能GPIOA的时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOG, ENABLE);  //使能GPIOA的时钟
 	
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;          //复用推挽输出
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -153,7 +153,7 @@ static void motor_init_new_way(void)
 	GPIO_InitTypeDef GPIO_InitStruct;                             
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);   //使能定时器1时钟
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);  //使能GPIOA的时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA|RCC_AHB1Periph_GPIOG, ENABLE);  //使能GPIOA的时钟
 	
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;          //复用推挽输出
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;

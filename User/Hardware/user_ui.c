@@ -1,15 +1,32 @@
 #include "user_ui.h"
 
-extern key_mode KEY_POSITION;                                                       //记录当前按键状态
-key_mode KEY_POSITION_OLD;                                                          //记录上一次按键状态
+extern key_mode KEY_POSITION;                                                      					//记录当前按键状态
+key_mode KEY_POSITION_OLD;                                                         					//记录上一次按键状态
 
-static const unsigned char Title_name[10] = "Choose";                       					//标题
+static const unsigned char Title_name[10] = "Choose";                       						//标题
 static const unsigned char Menu_name[10][10] = {"Para","Task","Start","----"};     					//开始选择界面的选项栏
-static const unsigned char Para_name[10][10] = {"Vice","Vice_kp","Vice_ki","Vice_kd",   \
-									"Angle","Angle_kp","Angle_ki","Angle_kd"};		//修改参数列表
-static const unsigned char Task_name[10][10] = {"1","2","3","4",   \
-									"5","6","7","8"};								//修改任务目标列表	
 
+static const unsigned char Para_name[10][10] = {"Mode","Para2","Para3","Para4",   \
+									"Para5","Para6","Para7","Para8"};								//修改参数列表
+
+static fp32 para_change[10];                                                                        //修改参数值
+Para_change_struct para_Para={0};
+Para_change_struct task_Para={0};
+									
+static const unsigned char Task_name[10][10] = {"Task1","Task2","Task3","Task4",   \
+									"Task5","Task6","Task7","Task8"};												//修改任务目标列表
+
+static fp32 task_change[10];                                                                        //修改参数值
+
+									
+static back_mesg Para_change(back_mesg num);
+static back_mesg Task_change(back_mesg num);
+									
+static back_mesg Menu_table(back_mesg num);
+static back_mesg Para_table(back_mesg num);
+static back_mesg Task_table(back_mesg num);
+static back_mesg Start_table();
+									
 choose_table table[30] = {
 	//当前，前进，后退，函数指针
 	//Menu
@@ -114,7 +131,7 @@ static void Choose_Num_Show(unsigned char * content,int choose)
 
 
 
-back_mesg Menu_table(back_mesg num)
+static back_mesg Menu_table(back_mesg num)
 {
 	static int enter_choose = 1;
 	char show_string[4][10];
@@ -175,7 +192,7 @@ back_mesg Menu_table(back_mesg num)
 
 }
 
-back_mesg Para_table(back_mesg num)
+static back_mesg Para_table(back_mesg num)
 {
 	static int enter_choose = 1;
 	char show_string[4][10];
@@ -233,7 +250,7 @@ back_mesg Para_table(back_mesg num)
 	return action;
 }
 
-back_mesg Task_table(back_mesg num)
+static back_mesg Task_table(back_mesg num)
 {
 	static int enter_choose = 1;
 	char show_string[4][10];
@@ -291,7 +308,7 @@ back_mesg Task_table(back_mesg num)
 	return action;
 }
 
-back_mesg Start_table()
+static back_mesg Start_table()
 {
 	back_mesg action;
 	
@@ -300,7 +317,10 @@ back_mesg Start_table()
 	return action;
 }
 
-back_mesg Para_change(back_mesg num)
+
+
+
+static back_mesg Para_change(back_mesg num)
 {
 	static int enter_choose = 1;
 	float enter_num;
@@ -333,6 +353,10 @@ back_mesg Para_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			for(i=0; i<8;i++)
+				show_num[i] = 0;
+			
+			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			return action;
 		}
 		show_num[enter_choose]++;
@@ -343,6 +367,10 @@ back_mesg Para_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			for(i=0; i<8;i++)
+				show_num[i] = 0;
+			
+			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			return action;
 		}
 		show_num[enter_choose]--;
@@ -355,7 +383,7 @@ back_mesg Para_change(back_mesg num)
 	return num; 
 }
 
-back_mesg Task_change(back_mesg num)
+static back_mesg Task_change(back_mesg num)
 {
 	static int enter_choose = 1;
 	float enter_num;
@@ -388,6 +416,10 @@ back_mesg Task_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			for(i=0; i<8;i++)
+				show_num[i] = 0;
+			
+			para_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			return action;
 		}
 		show_num[enter_choose]++;
@@ -398,6 +430,10 @@ back_mesg Task_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			for(i=0; i<8;i++)
+				show_num[i] = 0;
+			
+			para_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			return action;
 		}
 		show_num[enter_choose]--;
@@ -410,15 +446,45 @@ back_mesg Task_change(back_mesg num)
 	return num; 
 }
 
+
+
+static void Para_changle_in(void)                      //将修改数据装填入实际数据
+{
+	int i;
+	for(i=0; i<8; i++)
+		para_Para.Para[i] = para_change[i];
+}
+
+
+static void Task_changle_in(void)                      //将修改数据装填入实际数据
+{
+	int i;
+	for(i=0; i<8; i++)
+		task_Para.Para[i] = task_change[i];
+}
+
+
 void Para_Task_Start(void)
 {
 	static int i;
 	back_mesg start={0,0};
 	
-	
+	Para_changle_in();                      //将修改数据装填入实际数据
+	Task_changle_in();                      //将修改数据装填入实际数据
 	while(start.table_index!=-1)
 	{
 		start = table[start.table_index].current_operation(start);
 		for(i=0; i<0xfffff;i++);
 	}
+	
+}
+
+const Para_change_struct * get_para_pointe(void)
+{
+	return &para_Para;
+}
+
+const Para_change_struct * get_task_pointe(void)
+{
+	return &task_Para;
 }

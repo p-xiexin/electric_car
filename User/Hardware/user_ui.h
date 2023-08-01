@@ -26,14 +26,14 @@ typedef struct
 	back_mesg (*current_operation)(back_mesg);  		//函数指针
 }   choose_table;
 
-back_mesg Menu_table(back_mesg num);
-back_mesg Para_table(back_mesg num);
-back_mesg Task_table(back_mesg num);
+typedef struct
+{
+	fp32 Para[10];
+}	Para_change_struct;
 
-back_mesg Para_change(back_mesg num);
-back_mesg Task_change(back_mesg num);
-back_mesg Start_table();
+
 void Para_Task_Start(void);
-
+const Para_change_struct * get_para_pointe(void);
+const Para_change_struct * get_task_pointe(void);
 	
 #endif

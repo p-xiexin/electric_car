@@ -14,6 +14,7 @@
 #include "arm_math.h"
 #include "pid.h"
 #include "jy901.h"
+#include "user_ui.h"
 // #include "INS_Task.h"
 
 #include "FreeRTOSConfig.h"
@@ -153,11 +154,17 @@ void chassis_init(chassis_move_t *chassis_move_init)
     const static fp32 chassis_x_order_filter[1] = {CHASSIS_ACCEL_X_NUM};
     uint8_t i;
 
+
     //获取遥控器指针
     chassis_move_init->chassis_RC = get_remote_control_point();
     //获取陀螺仪姿态角指针
     // chassis_move_init->chassis_INS_angle = get_INS_angle_point();
-	chassis_move_init->chassis_INS_angle = get_gyro_point();
+	chassis_move_init->chassis_INS_angle = get_angle_point();
+	//获取修改参数指针
+	chassis_move_init->para = get_para_pointe();
+	//获取任务参数指针
+	chassis_move_init->task = get_task_pointe();
+	
     
     //初始化PID 运动
     for (i = 0; i < 4; i++)
@@ -166,7 +173,7 @@ void chassis_init(chassis_move_t *chassis_move_init)
         PID_Init(&chassis_move_init->motor_speed_pid[i], PID_DELTA, motor_speed_pid, M3505_MOTOR_SPEED_PID_MAX_OUT, M3505_MOTOR_SPEED_PID_MAX_IOUT);
     }
     //初始化旋转PID
-    PID_Init(&chassis_move_init->chassis_angle_pid, PID_POSITION, chassis_yaw_pid, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT);
+    PID_Init(&chassis_move_init->chassis_angle_pid, PID_DELTA, chassis_yaw_pid, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT);
     //用一阶滤波代替斜波函数生成
     first_order_filter_init(&chassis_move_init->chassis_cmd_slow_set_vx, CHASSIS_CONTROL_TIME, chassis_x_order_filter);
 
@@ -186,12 +193,17 @@ void chassis_init(chassis_move_t *chassis_move_init)
   */
 void chassis_set_mode(chassis_move_t *chassis_move_mode)
 {
+	
     if (chassis_move_mode == NULL)
     {
         return;
     }
-
-    chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW;
+	if(chassis_move_mode->para->Para[0] == 0)
+		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW;
+	else {
+		led_red_on();
+		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW;
+	}
 }
 
 /**
