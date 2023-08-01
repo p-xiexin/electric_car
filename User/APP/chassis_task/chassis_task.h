@@ -20,17 +20,21 @@
 #include "remote_control.h"
 #include "pid.h"
 #include "jy901.h"
-#include "user_ui.h"
 // #include "CAN_Receive.h"
 #include "user_lib.h"
 #include "motor.h"
+#include "user_ui.h"
+
+//是否使用麦克拉姆，不使用注释定义
+// #define USE_MECANUM_WHEEL
 
 /*底盘电机编号
+  APP层电机顺序
   1     2
 
   0     3
   
-  
+  BSP层电机顺序
   0     1
   
   
@@ -71,16 +75,33 @@
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //底盘电机最大速度 m/s
-#define MAX_WHEEL_SPEED 2
+#define MAX_WHEEL_SPEED 2.0f
 //底盘运动过程最大前进速度 m/s
-#define NORMAL_MAX_CHASSIS_SPEED_X 2
+#define NORMAL_MAX_CHASSIS_SPEED_X 2.0f
 //底盘设置旋转速度，设置前后左右轮不同设定速度的比例分权 0为在几何中心，不需要补偿
 #define CHASSIS_WZ_SET_SCALE 0.0f
 
+// #if defined(USE_MECANUM_WHEEL)
+//麦轮相关宏定义
+//左右的遥控器通道号码
+#define CHASSIS_Y_CHANNEL 0
+
+//遥控器左右摇杆（max 660）转化成车体左右速度（m/s）的比例
+#define CHASSIS_VY_RC_SEN 0.003f
+#define CHASSIS_ACCEL_Y_NUM 0.3333333333f
+
+//底盘运动过程最大平移速度
+#define NORMAL_MAX_CHASSIS_SPEED_Y 1.9f
+
+#define MOTOR_DISTANCE_TO_CENTER 0.2f
+#define MOTOR_SPEED_TO_CHASSIS_SPEED_VX 0.25f
+#define MOTOR_SPEED_TO_CHASSIS_SPEED_VY 0.25f
+#define MOTOR_SPEED_TO_CHASSIS_SPEED_WZ 0.25f
+// #endif
 
 //底盘电机速度环PID
-#define M3505_MOTOR_SPEED_PID_KP 48.0/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
-#define M3505_MOTOR_SPEED_PID_KI 1.6/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
+#define M3505_MOTOR_SPEED_PID_KP 48.0f/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
+#define M3505_MOTOR_SPEED_PID_KI 1.6f/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
 #define M3505_MOTOR_SPEED_PID_KD 0.0f
 #define M3505_MOTOR_SPEED_PID_MAX_OUT MAX_MOTOR_CAN_CURRENT
 #define M3505_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
@@ -102,7 +123,6 @@ typedef enum
 typedef struct
 {
   const motor_measure_t *chassis_motor_measure;
-  // const int *encoder;
   fp32 accel;
   fp32 speed;
   fp32 speed_set;
@@ -122,9 +142,12 @@ typedef struct
   PidTypeDef chassis_angle_pid;              //底盘跟随角度pid
 
   first_order_filter_type_t chassis_cmd_slow_set_vx;
+  first_order_filter_type_t chassis_cmd_slow_set_vy;
 
   fp32 vx;                         //底盘速度 前进方向 前为正，单位 m/s
+  fp32 vy;                         //底盘速度 左右方向 左为正  单位 m/s
   fp32 wz;                         //底盘旋转角速度，逆时针为正 单位 rad/s
+  fp32 vy_set;                     //底盘设定速度 左右方向 左为正，单位 m/s
   fp32 vx_set;                     //底盘设定速度 前进方向 前为正，单位 m/s
   fp32 wz_set;                     //底盘设定旋转角速度，逆时针为正 单位 rad/s
   fp32 chassis_relative_angle;     //底盘与云台的相对角度，单位 rad/s
@@ -134,11 +157,15 @@ typedef struct
 
   fp32 vx_max_speed;  //前进方向最大速度 单位m/s
   fp32 vx_min_speed;  //前进方向最小速度 单位m/s
+  fp32 vy_max_speed;  //左右方向最大速度 单位m/s
+  fp32 vy_min_speed;  //左右方向最小速度 单位m/s
 } chassis_move_t;
 
 
 extern void chassis_task(void *pvParameters);
-extern void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector);
+extern void chassis_rc_to_control_vector(fp32 *vx_set, chassis_move_t *chassis_move_rc_to_vector);
+extern void chassis_rc_to_mecanum_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector);
+
 
 //底盘初始化，主要是pid初始化
 extern void chassis_init(chassis_move_t *chassis_move_init);

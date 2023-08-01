@@ -469,13 +469,13 @@ void Para_Task_Start(void)
 	static int i;
 	back_mesg start={0,0};
 	
-	Para_changle_in();                      //将修改数据装填入实际数据
-	Task_changle_in();                      //将修改数据装填入实际数据
 	while(start.table_index!=-1)
 	{
 		start = table[start.table_index].current_operation(start);
 		for(i=0; i<0xfffff;i++);
 	}
+	Para_changle_in();                      //将修改数据装填入实际数据
+	Task_changle_in();                      //将修改数据装填入实际数据
 	
 }
 

@@ -48,24 +48,24 @@ void UserTask(void *pvParameters)
     static uint8_t Tcount = 0;
 	
 	
-	
+    angle_Z = get_angle_point();
+    gyro_Z = get_gyro_point();
 	local_chassis_move = get_chassis_control_point();
 	
     while (1)
     {
-		angle_Z = get_angle_point();
-		gyro_Z = get_gyro_point();
-//		Test_Send_User(encoder[0], encoder[1], encoder[2], encoder[3], (int)(Angle_Z*10),(int)(Gyro_Z*10), local_chassis_move->motor_chassis[0].speed*1000,local_chassis_move->motor_chassis[1].speed*1000);
-//		printf("%d  %d\n",local_chassis_move->chassis_RC->ch[0],local_chassis_move->chassis_RC->ch[1]);
-		printf("%f %f %f\n",local_chassis_move->wz_set,*gyro_Z, *angle_Z);
         Tcount++;
         if(Tcount >= 50)
         {
-
 			led_green_toggle();	
-
 			Tcount = 0;
         }
+
+		// Test_Send_User(encoder[0], encoder[1], encoder[2], encoder[3], (int)(Angle_Z*10),(int)(Gyro_Z*10), local_chassis_move->motor_chassis[0].speed*1000,local_chassis_move->motor_chassis[1].speed*1000);
+		// printf("%d  %d\n",local_chassis_move->chassis_RC->ch[0],local_chassis_move->chassis_RC->ch[1]);
+		// printf("%f %f %f\n",local_chassis_move->wz_set,*gyro_Z, *angle_Z);
+
+        printf("%.2f, %.2f, %.2f, %.2f\n", local_chassis_move->chassis_yaw * 57.3f, local_chassis_move->chassis_yaw_set * 57.3f, local_chassis_move->wz * 10, local_chassis_move->wz_set * 10);
 		
         vTaskDelay(10);     //ms
 #if INCLUDE_uxTaskGetStackHighWaterMark
