@@ -9,7 +9,7 @@ static const unsigned char Menu_name[10][10] = {"Para","Task","Start","----"};  
 static const unsigned char Para_name[10][10] = {"Mode","Para2","Para3","Para4",   \
 									"Para5","Para6","Para7","Para8"};								//修改参数列表
 
-static fp32 para_change[10];                                                                        //修改参数值
+fp32 para_change[10];                                                                        //修改参数值
 Para_change_struct para_Para={0};
 Para_change_struct task_Para={0};
 									
@@ -353,10 +353,11 @@ static back_mesg Para_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			for(i=0; i<8;i++)
 				show_num[i] = 0;
 			
-			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
+			
 			return action;
 		}
 		show_num[enter_choose]++;
@@ -367,10 +368,11 @@ static back_mesg Para_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			for(i=0; i<8;i++)
 				show_num[i] = 0;
 			
-			para_change[num.table_index-2] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
+			
 			return action;
 		}
 		show_num[enter_choose]--;
@@ -416,10 +418,11 @@ static back_mesg Task_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			task_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
 			for(i=0; i<8;i++)
 				show_num[i] = 0;
 			
-			para_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
+			
 			return action;
 		}
 		show_num[enter_choose]++;
@@ -430,10 +433,13 @@ static back_mesg Task_change(back_mesg num)
 		if(enter_choose==8) {
 			action.table_index = table[num.table_index].back;
 			action.choose_index = 1;
+			
+			task_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
+			
 			for(i=0; i<8;i++)
 				show_num[i] = 0;
 			
-			para_change[num.table_index-13] = show_num[0]*1000+show_num[1]*100+show_num[2]*10+show_num[3]*1+show_num[4]*0.1+show_num[5]*0.01+show_num[6]*0.001+show_num[7]*0.0001;
+			
 			return action;
 		}
 		show_num[enter_choose]--;
@@ -469,11 +475,11 @@ void Para_Task_Start(void)
 	static int i;
 	back_mesg start={0,0};
 	
-	while(start.table_index!=-1)
-	{
-		start = table[start.table_index].current_operation(start);
-		for(i=0; i<0xfffff;i++);
-	}
+//	while(start.table_index!=-1)
+//	{
+//		start = table[start.table_index].current_operation(start);
+//		for(i=0; i<0xfffff;i++);
+//	}
 	Para_changle_in();                      //将修改数据装填入实际数据
 	Task_changle_in();                      //将修改数据装填入实际数据
 	

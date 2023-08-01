@@ -22,9 +22,9 @@ void User_LCD_Start(void);
 
 int main(void)
 {
-	
+	delay_init(configTICK_RATE_HZ);
 	User_LCD_Start();
-	
+	delay_ms(2000);
 	BSP_Init();
 //	
 //	
@@ -44,7 +44,7 @@ void BSP_Init(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
 	//初始化滴答时钟
-	delay_init(configTICK_RATE_HZ);
+	
 	
 	//encoder_init
 	Encoder_All_Init();
@@ -53,6 +53,8 @@ void BSP_Init(void)
 	USART2_Config();
 	//JY901
 	JY901_init();
+	
+	
 	//RC
 	remote_control_init();
 	

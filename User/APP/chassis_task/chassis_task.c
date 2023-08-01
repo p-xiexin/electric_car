@@ -209,7 +209,7 @@ void chassis_set_mode(chassis_move_t *chassis_move_mode)
         return;
     }
 
-	if(chassis_move_mode->para->Para[0] == 0)
+	if(chassis_move_mode->para->Para[0] != 0)
 		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_NO_FOLLOW_YAW;
 	else
     {

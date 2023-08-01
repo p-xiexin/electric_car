@@ -65,7 +65,8 @@ void UserTask(void *pvParameters)
 		// printf("%d  %d\n",local_chassis_move->chassis_RC->ch[0],local_chassis_move->chassis_RC->ch[1]);
 		// printf("%f %f %f\n",local_chassis_move->wz_set,*gyro_Z, *angle_Z);
 
-        printf("%.2f, %.2f, %.2f, %.2f\n", local_chassis_move->chassis_yaw * 57.3f, local_chassis_move->chassis_yaw_set * 57.3f, local_chassis_move->wz * 10, local_chassis_move->wz_set * 10);
+//        printf("%.2f, %.2f, %.2f, %.2f\n", local_chassis_move->chassis_yaw * 57.3f, local_chassis_move->chassis_yaw_set * 57.3f, local_chassis_move->wz * 10, local_chassis_move->wz_set * 10);
+		printf("%.2f, %.2f\n", local_chassis_move->chassis_yaw * 57.3f, local_chassis_move->chassis_yaw_set * 57.3f);
 		
         vTaskDelay(10);     //ms
 #if INCLUDE_uxTaskGetStackHighWaterMark
