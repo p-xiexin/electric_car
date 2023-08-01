@@ -5,12 +5,12 @@
             "cwd": "${workspaceRoot}",
             "type": "cortex-debug",
             "request": "launch",
-            "name": "stlink",
+            "name": "openocd",
             "servertype": "openocd",
             "executable": "Project\\build\\Target 1\\Project.elf",
             "runToEntryPoint": "main",
             "configFiles": [
-                "interface/stlink.cfg",
+                "interface/cmsis-dap.cfg",
                 "target/stm32f4x.cfg"
             ]
         }

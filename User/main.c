@@ -7,6 +7,7 @@
 #include "encoder.h"
 #include "usart.h"
 #include "motor.h"
+#include "jy901.h"
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -17,11 +18,15 @@
 #include "user_ui.h"
 
 void BSP_Init(void);
+void User_LCD_Start(void);
 
 int main(void)
 {
+	
+	User_LCD_Start();
+	led_blue_on();
 	BSP_Init();
-//	Para_Task_Start();
+//	
 //	
 	
 	startTast();
@@ -45,25 +50,26 @@ void BSP_Init(void)
 	//encoder_init
 	Encoder_All_Init();
 	
-  //LED灯初始化
-	led_init();
-	//LCD
-	LCD_Init();
-	//蜂鸣器初始化
-	buzzer_init();
-	//KEY
-	Key_init();
-	
+	//USART2
+	USART2_Config();
 	//JY901
-	USART5_JY901_Config();
-	
-	remote_control_init();
-	//DMA
-//	DMA_USART3_init();
-//	//uart init
-//	USART3_Config();
+	JY901_init();
 	//RC
+	remote_control_init();
 	
+	
+	
+}
+
+
+void User_LCD_Start(void)
+{
+	LCD_Init();
+	buzzer_init();
+	Key_init();
+	led_init();
+	led_green_on();
+//	Para_Task_Start();
 	
 }
 

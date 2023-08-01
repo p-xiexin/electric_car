@@ -146,7 +146,61 @@ static void Motor_Init_TIM8(void)
 }
 
 
-
+static void motor_init_new_way(void)
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+	TIM_OCInitTypeDef TIM_OCInitStruct;
+	GPIO_InitTypeDef GPIO_InitStruct;                             
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);   //使能定时器1时钟
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);  //使能GPIOA的时钟
+	
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;          //复用推挽输出
+	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8|GPIO_Pin_9|GPIO_Pin_10|GPIO_Pin_11;//PA8 PA9 PA10 PA11
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_TIM1);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_TIM1);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_TIM1);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_TIM1);
+	
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
+	GPIO_Init(GPIOA, &GPIO_InitStruct);
+	
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2|GPIO_Pin_11|GPIO_Pin_12;
+	GPIO_Init(GPIOG, &GPIO_InitStruct);
+	
+/*******************************************************************************
+*  Time_BASE  =  ((1+TIM_Prescaler)/180M)*(1+TIM_Period)
+*  Time       =  ((1+1)/180M)*(1+8999)  =  0.1ms
+*******************************************************************************/
+	
+	TIM_TimeBaseInitStruct.TIM_Prescaler  = 1;          //设定预分频器
+	TIM_TimeBaseInitStruct.TIM_Period = 8999;              //设定计数器自动重装值 
+	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;//TIM向上计数模式
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = 0;         //设置时钟分割
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseInitStruct);       //初始化定时器
+	
+	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;             //选择PWM1模式
+	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+	TIM_OCInitStruct.TIM_Pulse = 0;                            //设置待装入捕获比较寄存器的脉冲值
+	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;     //设置输出极性
+	TIM_OC1Init(TIM1, &TIM_OCInitStruct);                       //初始化输出比较参数
+	TIM_OC2Init(TIM1, &TIM_OCInitStruct);
+	TIM_OC3Init(TIM1, &TIM_OCInitStruct);
+	TIM_OC4Init(TIM1, &TIM_OCInitStruct);
+	
+	TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Enable);   //CH1使能预装载寄存器
+	TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	TIM_OC4PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	
+	TIM_ARRPreloadConfig(TIM1, ENABLE);                //使能TIM4在ARR上的预装载寄存器
+	TIM_Cmd(TIM1, ENABLE);                              //使能定时器4
+	TIM_CtrlPWMOutputs(TIM1, ENABLE);
+}
 
 
 
@@ -159,8 +213,9 @@ static void Motor_Init_TIM8(void)
 *******************************************************************************/
 void Motor_Init(void)
 {
-	Motor_Init_TIM1();
-	Motor_Init_TIM8();
+//	Motor_Init_TIM1();
+//	Motor_Init_TIM8();
+	motor_init_new_way();
 }
 
 
@@ -233,17 +288,69 @@ void Set_motor_speed(int motor1_pwm, int motor2_pwm, int motor3_pwm, int motor4_
 		motor4_pwm+=motor4_deadlow;
 	
 	
+//	if(motor1_pwm > 0)//M1
+//	{
+//		GPIO_SetBits(GPIOA, GPIO_Pin_10);
+//		TIM_SetCompare2(TIM1, (motor1_pwm));
+//	}
+//	else
+//	{
+//		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
+//		TIM_SetCompare2(TIM1, -(motor1_pwm));
+//	}
+//	
+//	
+//	
+//	
+//	if(motor2_pwm > 0)//M2
+//	{
+//		GPIO_ResetBits(GPIOI, GPIO_Pin_6);
+//		TIM_SetCompare1(TIM1, motor2_pwm);
+//	}
+//	else
+//	{
+//		GPIO_SetBits(GPIOI, GPIO_Pin_6);
+//		TIM_SetCompare1(TIM1, -(motor2_pwm));
+//	}
+//	
+//	
+//	
+//	if(motor3_pwm > 0)//M3
+//	{
+//		GPIO_SetBits(GPIOA, GPIO_Pin_11);
+//		TIM_SetCompare4(TIM8, motor3_pwm);
+//	
+//	}
+//	else
+//	{
+//		GPIO_ResetBits(GPIOA, GPIO_Pin_11);
+//		TIM_SetCompare4(TIM8, -motor3_pwm);
+//	}
+//	
+//	
+//	
+//	
+//	if(motor4_pwm > 0)//M4
+//	{
+//		GPIO_ResetBits(GPIOI, GPIO_Pin_5);
+//		TIM_SetCompare3(TIM8, motor4_pwm);
+//	}
+//	else
+//	{
+//		GPIO_SetBits(GPIOI, GPIO_Pin_5);
+//		TIM_SetCompare3(TIM8, -(motor4_pwm));
+//	}
+	
+	
 	if(motor1_pwm > 0)//M1
 	{
-		GPIO_SetBits(GPIOA, GPIO_Pin_10);
+		GPIO_SetBits(GPIOG, GPIO_Pin_11);
 		TIM_SetCompare2(TIM1, (motor1_pwm));
-//		TIM_SetCompare3(TIM1, 0);
 	}
 	else
 	{
-		GPIO_ResetBits(GPIOA, GPIO_Pin_10);
+		GPIO_ResetBits(GPIOG, GPIO_Pin_11);
 		TIM_SetCompare2(TIM1, -(motor1_pwm));
-//		TIM_SetCompare3(TIM1, -(motor3_pwm));
 	}
 	
 	
@@ -251,31 +358,27 @@ void Set_motor_speed(int motor1_pwm, int motor2_pwm, int motor3_pwm, int motor4_
 	
 	if(motor2_pwm > 0)//M2
 	{
-		GPIO_ResetBits(GPIOI, GPIO_Pin_6);
-//		TIM_SetCompare2(TIM8, (motor2_pwm));
-		TIM_SetCompare1(TIM1, motor2_pwm);
+		GPIO_ResetBits(GPIOG, GPIO_Pin_2);
+		TIM_SetCompare4(TIM1, motor2_pwm);
 	}
 	else
 	{
-		GPIO_SetBits(GPIOI, GPIO_Pin_6);
-//		TIM_SetCompare2(TIM8, 0);
-		TIM_SetCompare1(TIM1, -(motor2_pwm));
+		GPIO_SetBits(GPIOG, GPIO_Pin_2);
+		TIM_SetCompare4(TIM1, -(motor2_pwm));
 	}
 	
 	
 	
 	if(motor3_pwm > 0)//M3
 	{
-		GPIO_SetBits(GPIOA, GPIO_Pin_11);
-//		TIM_SetCompare4(TIM1, 0);
-		TIM_SetCompare4(TIM8, motor3_pwm);
+		GPIO_SetBits(GPIOG, GPIO_Pin_12);
+		TIM_SetCompare3(TIM1, motor3_pwm);
 	
 	}
 	else
 	{
-		GPIO_ResetBits(GPIOA, GPIO_Pin_11);
-//		TIM_SetCompare4(TIM1, -motor1_pwm);
-		TIM_SetCompare4(TIM8, -motor3_pwm);
+		GPIO_ResetBits(GPIOG, GPIO_Pin_12);
+		TIM_SetCompare3(TIM1, -motor3_pwm);
 	}
 	
 	
@@ -283,15 +386,13 @@ void Set_motor_speed(int motor1_pwm, int motor2_pwm, int motor3_pwm, int motor4_
 	
 	if(motor4_pwm > 0)//M4
 	{
-		GPIO_ResetBits(GPIOI, GPIO_Pin_5);
-//		TIM_SetCompare1(TIM8, (motor4_pwm));
-		TIM_SetCompare3(TIM8, motor4_pwm);
+		GPIO_ResetBits(GPIOA, GPIO_Pin_6);
+		TIM_SetCompare1(TIM8, motor4_pwm);
 	}
 	else
 	{
-		GPIO_SetBits(GPIOI, GPIO_Pin_5);
-//		TIM_SetCompare1(TIM8, 0);
-		TIM_SetCompare3(TIM8, -(motor4_pwm));
+		GPIO_SetBits(GPIOA, GPIO_Pin_6);
+		TIM_SetCompare1(TIM8, -(motor4_pwm));
 	}
 	
 }
@@ -303,16 +404,7 @@ void Set_motor_speed(int motor1_pwm, int motor2_pwm, int motor3_pwm, int motor4_
 
 void Set_Motor_PI(int targt1, int targt2, int targt3, int targt4)
 {
-	int PWM1, PWM2, PWM3, PWM4;
-	
-//	PWM1 = (int)WheelVControl(0, targt1, encoder[0], 0);
-//	PWM2 = (int)WheelVControl(0, targt2, encoder[1], 1);
-//	PWM3 = (int)WheelVControl(0, targt3, encoder[2], 2);
-//	PWM4 = (int)WheelVControl(0, targt4, encoder[3], 3);
-	
-//	Set_motor_speed(PWM1, PWM2, PWM3, PWM4);
-	Set_motor_speed(3000, 3000, 3000, 3000);
-	
+
 }
 
 

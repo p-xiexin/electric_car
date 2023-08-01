@@ -14,7 +14,7 @@ typedef enum
 {
 	Encoder1 = 0,
 	Encoder2,
-	Encoder3,
+	Encoder3,  
 	Encoder4,
 } Encoder_TypeDef;
 

@@ -253,7 +253,6 @@ extern int Read_Encoder(Encoder_TypeDef Encoder_num)
 
 void Read_All_Encoder(void)
 {
-	int i;
 	encoder[0] = Read_Encoder(Encoder1);
 	encoder[1] = Read_Encoder(Encoder2);
 	encoder[2] = Read_Encoder(Encoder3);

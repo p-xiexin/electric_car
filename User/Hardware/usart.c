@@ -251,10 +251,10 @@ void Usart_SendHalfWord( USART_TypeDef * pUSARTx, uint16_t ch)
 int fputc(int ch, FILE *f)
 {
 		/* 发送一个字节数据到串口 */
-		USART_SendData(USART3, (uint8_t) ch);
+		USART_SendData(USART2, (uint8_t) ch);
 		
 		/* 等待发送完毕 */
-		while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET);		
+		while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);		
 	
 		return (ch);
 }
@@ -263,9 +263,9 @@ int fputc(int ch, FILE *f)
 int fgetc(FILE *f)
 {
 		/* 等待串口输入数据 */
-		while (USART_GetFlagStatus(USART3, USART_FLAG_RXNE) == RESET);
+		while (USART_GetFlagStatus(USART2, USART_FLAG_RXNE) == RESET);
 
-		return (int)USART_ReceiveData(USART3);
+		return (int)USART_ReceiveData(USART2);
 }
 
 
@@ -403,88 +403,8 @@ void DMA1_Stream3_IRQHandler(void)
 
 
 
-/**************************UART5 for JY901**************************/
 
-static void NVIC_JY901_Configuration(void)
-{
-  NVIC_InitTypeDef NVIC_InitStructure;
-  
-
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-  
-  /* ??USART???? */
-  NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;
-  /* ??????1 */
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  /* ?????1 */
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  /* ???? */
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  /* ?????NVIC */
-  NVIC_Init(&NVIC_InitStructure);
-}
-
-
-
- /**
-  * @brief  USART5 GPIO 配置,工作模式配置。115200 9-E-1 
-  * @param  无
-  * @retval 无
-  */
-void USART5_JY901_Config(void)         //RX-PD2    TX-PC12
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  USART_InitTypeDef USART_InitStructure;
-		
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD,ENABLE);
-
-  /* 使能 USART 时钟 */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
-  
-  /* GPIO初始化 */
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;  
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  
-  /* 配置Tx引脚为复用功能  */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12  ;  
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  /* 配置Rx引脚为复用功能 */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_2;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-  
- /* 连接 PXx 到 USARTx_Tx*/
-  GPIO_PinAFConfig(GPIOC,GPIO_PinSource12,GPIO_AF_UART5);
-
-  /*  连接 PXx 到 USARTx__Rx*/
-  GPIO_PinAFConfig(GPIOD,GPIO_PinSource2, GPIO_AF_UART5);
-  
-  /* 配置串DEBUG_USART 模式 */
-  /* 波特率设置：DEBUG_USART_BAUDRATE */
-  USART_InitStructure.USART_BaudRate = 115200;
-  /* 字长(数据位+校验位)：8 */
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  /* 停止位：1个停止位 */
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  /* 校验位选择：不使用校验 */
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  /* 硬件流控制：不使用硬件流 */
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  /* USART模式控制：同时使能接收和发送 */
-  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-  /* 完成USART初始化配置 */
-  USART_Init(UART5, &USART_InitStructure); 
-	
-	NVIC_JY901_Configuration();
-	
-	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
-	
-  /* 使能串口 */
-  USART_Cmd(UART5, ENABLE);
-}
+ 
 
 
 
@@ -492,47 +412,6 @@ void USART5_JY901_Config(void)         //RX-PD2    TX-PC12
 
 
 
-
-
-
-void UART5_IRQHandler(void)
-{
-	static unsigned int Res;
-	static uint8_t count=0;
-	static unsigned char JY901_BUF[11];
-	Res = UART5->DR;	
-	JY901_BUF[count++]=Res;
-	if (JY901_BUF[0]!=0x55)
-	{
-		count=0;
-		USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-		return;
-	}
-	if (count<11) {
-		USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-		return;
-	}
-	else
-	{
-		switch(JY901_BUF[1])
-		{
-			case 0x52:
-				gyro_Z_data  = ((JY901_BUF[7]<<8)|JY901_BUF[6]);    //   gyroz
-				break;
-			case 0x53:
-				angle_Z_data = ((JY901_BUF[7]<<8)|JY901_BUF[6]);    //   anglez
-				break;
-			case 0x58:
-				break;
-			default:
-//				USART_SendData(USART3, 0xad);
-				break;
-		}
-		count=0;
-	}
-	
-	USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-}
 
 
 
@@ -631,12 +510,12 @@ void USART2_Config(void)
   /* 完成USART初始化配置 */
   USART_Init(USART2, &USART_InitStructure); 
 	
-	NVIC_USART2_Configuration();
-	
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
-	
-	/*  enable DMA transport  */
-	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);
+//	NVIC_USART2_Configuration();
+//	
+//	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+//	
+//	/*  enable DMA transport  */
+//	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);
 	
   /* 使能串口 */
   USART_Cmd(USART2, ENABLE);

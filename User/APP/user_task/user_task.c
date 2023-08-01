@@ -27,6 +27,7 @@
 
 #include "usart.h"
 #include "buzzer.h"
+#include "jy901.h"
 
 #include "chassis_task.h"
 
@@ -35,6 +36,8 @@ extern int angle_Z_data;
 extern int gyro_Z_data;
 
 const chassis_move_t* local_chassis_move;
+const fp32 * angle_Z;
+const fp32 * gyro_Z;
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 uint32_t UserTaskStack;
@@ -44,26 +47,25 @@ void UserTask(void *pvParameters)
 {
     static uint8_t Tcount = 0;
 	
-	fp32 Angle_Z, Gyro_Z;
+	
 	
 	local_chassis_move = get_chassis_control_point();
 	
     while (1)
     {
-		Angle_Z = (angle_Z_data)*1.0/32768*180;    // du
-		Gyro_Z  = (float)(gyro_Z_data)/32768*2000;       // du/s
-		if(Gyro_Z>=2000)
-			Gyro_Z -= 4000;
+		angle_Z = get_angle_point();
+		gyro_Z = get_gyro_point();
 //		Test_Send_User(encoder[0], encoder[1], encoder[2], encoder[3], (int)(Angle_Z*10),(int)(Gyro_Z*10), local_chassis_move->motor_chassis[0].speed*1000,local_chassis_move->motor_chassis[1].speed*1000);
-		printf("%d  %d\n",local_chassis_move->chassis_RC->ch[0],local_chassis_move->chassis_RC->ch[1]);
-//        Tcount++;
-//        if(Tcount >= 50)
-//        {
+//		printf("%d  %d\n",local_chassis_move->chassis_RC->ch[0],local_chassis_move->chassis_RC->ch[1]);
+		printf("%f %f %f\n",local_chassis_move->wz_set,*gyro_Z, *angle_Z);
+        Tcount++;
+        if(Tcount >= 50)
+        {
 
-//					
+//			led_blue_toggle();	
 
-//			Tcount = 0;
-//        }
+			Tcount = 0;
+        }
 		
         vTaskDelay(10);     //ms
 #if INCLUDE_uxTaskGetStackHighWaterMark

@@ -1,6 +1,7 @@
 #include "Remote_Control.h"
 #include "rc.h"
 #include "stm32f4xx.h"
+#include "stdio.h"
 
 //遥控器出错数据上限
 #define RC_CHANNAL_ERROR_VALUE 700
@@ -30,6 +31,7 @@ const RC_ctrl_t *get_remote_control_point(void)
 //串口中断
  void USART3_IRQHandler(void)
  {
+	 
      if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
      {
          USART_ReceiveData(USART3);
@@ -97,8 +99,9 @@ static void SBUS_TO_RC(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl)
 
     if(sbus_buf[0] == SBUS_START_BYTE && sbus_buf[7] == SBUS_END_BYTE)
     {
-        rc_ctrl->ch[0] = (sbus_buf[1] | (sbus_buf[2] << 8));
-        rc_ctrl->ch[1] = (sbus_buf[3] | (sbus_buf[4] << 8));
+		
+        rc_ctrl->ch[0] = (sbus_buf[2] | (sbus_buf[3] << 8));
+        rc_ctrl->ch[1] = (sbus_buf[4] | (sbus_buf[5] << 8));
         rc_ctrl->s = sbus_buf[5];
     }
 }

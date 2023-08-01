@@ -13,9 +13,9 @@
 
 /************************************************************/
 
+
+
 void USART3_Config(void);
-void USART5_JY901_Config(void);         //RX-PD2    TX-PC12;
-void JY901_test(void);
 void DMA_USART3_init(void);
 void USART2_Config(void);
 void DMA_USART2_init(void);

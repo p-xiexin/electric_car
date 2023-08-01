@@ -2,6 +2,7 @@
 #define	ADC_H
 
 #include "stm32f4xx.h" 
+#include "main.h"
 #include "pwm.h"
 
 /*
@@ -37,18 +38,7 @@ ADC:
 #define RHEOSTAT_ADC_GPIO_PIN4     GPIO_Pin_3
 #define RHEOSTAT_ADC_GPIO_CLK4     RCC_AHB1Periph_GPIOC
 #define RHEOSTAT_ADC_CHANNEL4      ADC_Channel_13
-/*=====================通道14 IO ======================*/
-// ADC IO宏定义
-#define RHEOSTAT_ADC_GPIO_PORT5    GPIOC
-#define RHEOSTAT_ADC_GPIO_PIN5     GPIO_Pin_4
-#define RHEOSTAT_ADC_GPIO_CLK5     RCC_AHB1Periph_GPIOC
-#define RHEOSTAT_ADC_CHANNEL5      ADC_Channel_14
-/*=====================通道15 IO ======================*/
-// ADC IO宏定义
-#define RHEOSTAT_ADC_GPIO_PORT6    GPIOC
-#define RHEOSTAT_ADC_GPIO_PIN6     GPIO_Pin_5
-#define RHEOSTAT_ADC_GPIO_CLK6     RCC_AHB1Periph_GPIOC
-#define RHEOSTAT_ADC_CHANNEL6      ADC_Channel_15
+
 
 // ADC 序号宏定义
 #define RHEOSTAT_ADC              ADC1

@@ -13,6 +13,7 @@
 #include "chassis_task.h"
 #include "arm_math.h"
 #include "pid.h"
+#include "jy901.h"
 // #include "INS_Task.h"
 
 #include "FreeRTOSConfig.h"
@@ -109,6 +110,12 @@ void chassis_set_contorl(chassis_move_t *chassis_move_control)
         // //速度限幅
         // chassis_move_control->vx_set = fp32_constrain(chassis_move_control->vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
         // chassis_move_control->vy_set = fp32_constrain(chassis_move_control->vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
+		
+		//计算旋转PID角速度
+        chassis_move_control->wz_set = PID_Calc(&chassis_move_control->chassis_angle_pid, *(chassis_move_control->chassis_INS_angle), angle_set);
+        //速度限幅
+		chassis_move_control->vx_set = fp32_constrain(vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
+        
     }
     else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_NO_FOLLOW_YAW)
     {
@@ -150,6 +157,7 @@ void chassis_init(chassis_move_t *chassis_move_init)
     chassis_move_init->chassis_RC = get_remote_control_point();
     //获取陀螺仪姿态角指针
     // chassis_move_init->chassis_INS_angle = get_INS_angle_point();
+	chassis_move_init->chassis_INS_angle = get_gyro_point();
     
     //初始化PID 运动
     for (i = 0; i < 4; i++)
@@ -183,7 +191,7 @@ void chassis_set_mode(chassis_move_t *chassis_move_mode)
         return;
     }
 
-    chassis_move_mode->last_chassis_mode = CHASSIS_VECTOR_RAW;
+    chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW;
 }
 
 /**
@@ -252,7 +260,7 @@ void chassis_feedback_update(chassis_move_t *chassis_move_update)
     // chassis_move_update->chassis_pitch = rad_format(*(chassis_move_update->chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET));
     // chassis_move_update->chassis_roll = *(chassis_move_update->chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET);
 }
-
+fp32 vx_set_channel, wz_set_channel;
 /**
   * @brief          遥控器的数据处理成底盘的前进vx速度，wz速度
   * @author         pxx
@@ -269,7 +277,7 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *wz_set, chassis_move_t *ch
     }
     //遥控器原始通道值
     int16_t vx_channel, wz_channel;
-    fp32 vx_set_channel, wz_set_channel;
+//    fp32 vx_set_channel, wz_set_channel;
     //死区限制，因为遥控器可能存在差异 摇杆在中间，其值不为0
     rc_deadline_limit(chassis_move_rc_to_vector->chassis_RC->ch[CHASSIS_X_CHANNEL], vx_channel, CHASSIS_RC_DEADLINE);
     rc_deadline_limit(chassis_move_rc_to_vector->chassis_RC->ch[CHASSIS_WZ_CHANNEL], wz_channel, CHASSIS_RC_DEADLINE);
@@ -286,8 +294,9 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *wz_set, chassis_move_t *ch
         chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out = 0.0f;
     }
 
-    *vx_set = chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out;
-    *wz_set = wz_set_channel;
+//    *vx_set = chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out;
+	*vx_set = vx_set_channel;
+    *wz_set = -wz_set_channel;
 }
 
 /**
@@ -332,7 +341,7 @@ void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
         //赋值电流值
         for (i = 0; i < 4; i++)
         {
-            chassis_move_control_loop->motor_chassis[i].give_current = (int16_t)(wheel_speed[i]);
+            chassis_move_control_loop->motor_chassis[i].give_current = (int16_t)(1000*(wheel_speed[i]));
         }
         //raw控制直接返回
         return;

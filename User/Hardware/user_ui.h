@@ -5,10 +5,11 @@
 #include "lcd.h"
 #include "string.h"
 #include "lcd_key_led.h"
+#include "stdio.h"
 
-#define   MENU_NUM     4
-#define   PARA_NUM     10
-#define   TASK_NUM     10
+#define   MENU_NUM     3
+#define   PARA_NUM     8
+#define   TASK_NUM     8
 
 
 typedef struct

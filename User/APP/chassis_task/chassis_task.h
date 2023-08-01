@@ -19,9 +19,9 @@
 #include "main.h"
 #include "remote_control.h"
 #include "pid.h"
+#include "jy901.h"
 // #include "CAN_Receive.h"
 #include "user_lib.h"
-#include "pid.h"
 #include "motor.h"
 
 /*底盘电机编号
@@ -45,7 +45,7 @@
 #define CHASSIS_WZ_CHANNEL 1
 
 //遥控器前进摇杆（max 660）转化成车体前进速度（m/s）的比例
-#define CHASSIS_VX_RC_SEN 0.006f
+#define CHASSIS_VX_RC_SEN 0.004f
 //遥控器的yaw遥杆（max 660）转化成车体旋转速度（rad/s）的比例
 #define CHASSIS_WZ_RC_SEN 0.007f
 //x方向一阶低通滤波参数
@@ -64,31 +64,31 @@
 //底盘pwm最大值
 #define MAX_MOTOR_CAN_CURRENT 6000.0f
 
-//m3508转化成底盘速度(m/s)的比例，做两个宏 是因为可能换电机需要更换比例
+//rpm转化成底盘速度(m/s)的比例，做两个宏 是因为可能换电机需要更换比例
 // #define M3508_MOTOR_RPM_TO_VECTOR 0.000415809748903494517209f  // 2PI/60/(3591/187) * (0.1524/2)
-#define M3508_MOTOR_RPM_TO_VECTOR 0.000831619497806989034418f  // 2PI/60/(20) * (0.068/2)            rpm
+#define M3508_MOTOR_RPM_TO_VECTOR 0.000178023583703421f  // 2PI/60/(20) * (0.068/2)            rpm
 #define CHASSIS_MOTOR_RPM_TO_VECTOR_SEN M3508_MOTOR_RPM_TO_VECTOR
 
 //底盘电机最大速度 m/s
-#define MAX_WHEEL_SPEED 4.0f
+#define MAX_WHEEL_SPEED 2
 //底盘运动过程最大前进速度 m/s
-#define NORMAL_MAX_CHASSIS_SPEED_X 4.0f
+#define NORMAL_MAX_CHASSIS_SPEED_X 2
 //底盘设置旋转速度，设置前后左右轮不同设定速度的比例分权 0为在几何中心，不需要补偿
 #define CHASSIS_WZ_SET_SCALE 0.0f
 
 
 //底盘电机速度环PID
-#define M3505_MOTOR_SPEED_PID_KP 48.0f
-#define M3505_MOTOR_SPEED_PID_KI 1.6f
+#define M3505_MOTOR_SPEED_PID_KP 48.0/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
+#define M3505_MOTOR_SPEED_PID_KI 1.6/(M3508_MOTOR_RPM_TO_VECTOR*GMR_ENCODER_TO_MOTOR_RPM)
 #define M3505_MOTOR_SPEED_PID_KD 0.0f
 #define M3505_MOTOR_SPEED_PID_MAX_OUT MAX_MOTOR_CAN_CURRENT
 #define M3505_MOTOR_SPEED_PID_MAX_IOUT 2000.0f
 
 //底盘旋转跟随PID
-#define CHASSIS_FOLLOW_GIMBAL_PID_KP 8.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KP 4
 #define CHASSIS_FOLLOW_GIMBAL_PID_KI 0.0f
-#define CHASSIS_FOLLOW_GIMBAL_PID_KD 0.15f
-#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 5.0f
+#define CHASSIS_FOLLOW_GIMBAL_PID_KD 2
+#define CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT 3.0f
 #define CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT 0.2f
 
 typedef enum
@@ -111,7 +111,7 @@ typedef struct
 typedef struct
 {
   const RC_ctrl_t *chassis_RC;               //底盘使用的遥控器指针
-  // const fp32 *chassis_INS_angle;             //获取陀螺仪解算出的欧拉角指针
+  const fp32 *chassis_INS_angle;             //获取陀螺仪解算出的欧拉角指针
   chassis_mode_e chassis_mode;               //底盘控制状态机
   chassis_mode_e last_chassis_mode;          //底盘上次控制状态机
   Chassis_Motor_t motor_chassis[4];          //底盘电机数据

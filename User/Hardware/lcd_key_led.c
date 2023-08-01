@@ -1,5 +1,5 @@
 #include "lcd_key_led.h"
-key_mode KEY_POSITION={0,0,0,0};
+key_mode KEY_POSITION={0,0,1,0};
 /**********************************LED*****************************************/
 //	led_R           PB3            high_level_light    
 //	led_G           PA14           high_level_light 
@@ -28,6 +28,30 @@ void led_init(void)
 	led_red_off();
 	led_green_off();
 	led_blue_off();
+
+//	GPIO_InitTypeDef GPIO_InitStruct;                             
+//	
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);  //ʹĜGPIOAµĊ±֓
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);  //ʹĜGPIOAµĊ±֓
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);  //ʹĜGPIOAµĊ±֓
+//	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);  //ʹĜGPIOAµĊ±֓
+//	
+//	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;          //¸´Ӄ͆ͬʤ³ö
+//	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+//	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;//PA8 PA9 PA10 PA11
+//	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+//	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_Init(GPIOB, &GPIO_InitStruct);
+//	
+//	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
+//	GPIO_Init(GPIOD, &GPIO_InitStruct);
+//	
+//	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+//	GPIO_Init(GPIOI, &GPIO_InitStruct);
+//	
+//	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14;
+//	GPIO_Init(GPIOG, &GPIO_InitStruct);
+//	led_green_off();
 	
 }
 
@@ -50,31 +74,37 @@ void led_red_toggle(void)
 void led_green_on(void)
 {
 	GPIO_SetBits(GPIOA, GPIO_Pin_14);
+//	GPIO_ResetBits(GPIOD, GPIO_Pin_11);
 }
 
 void led_green_off(void)
 {
 	GPIO_ResetBits(GPIOA, GPIO_Pin_14);
+//	GPIO_SetBits(GPIOD, GPIO_Pin_11);
 }
 
 void led_green_toggle(void)
 {
 	GPIO_ToggleBits(GPIOA, GPIO_Pin_14);
+//	GPIO_ToggleBits(GPIOD, GPIO_Pin_11);
 }
 
 void led_blue_on(void)
 {
 	GPIO_SetBits(GPIOA, GPIO_Pin_13);
+//	GPIO_ResetBits(GPIOI, GPIO_Pin_3);
 }
 
 void led_blue_off(void)
 {
 	GPIO_ResetBits(GPIOA, GPIO_Pin_13);
+//	GPIO_SetBits(GPIOI, GPIO_Pin_3);
 }
 
 void led_blue_toggle(void)
 {
 	GPIO_ToggleBits(GPIOA, GPIO_Pin_13);
+//	GPIO_ToggleBits(GPIOI, GPIO_Pin_3);
 }
 /**********************************LED*****************************************/
 
@@ -155,38 +185,38 @@ void Key_init(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG,ENABLE);
 	
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOI, EXTI_PinSource3);
-	EXTI_InitStruct.EXTI_Line     =   EXTI_Line3;
-	EXTI_InitStruct.EXTI_Mode     =   EXTI_Mode_Interrupt;
-	EXTI_InitStruct.EXTI_Trigger  =   EXTI_Trigger_Falling;
-	EXTI_InitStruct.EXTI_LineCmd  =   ENABLE;
-	EXTI_Init( &EXTI_InitStruct );									   					 	//KEY1-PI3
-	
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource12);
-	EXTI_InitStruct.EXTI_Line     =   EXTI_Line12;
-	EXTI_Init( &EXTI_InitStruct );									    					//KEY2-PB12
-	
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource11);
-	EXTI_InitStruct.EXTI_Line     =   EXTI_Line11;
-	EXTI_Init( &EXTI_InitStruct );									    					//KEY3-PD11
-	
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource2);
-	EXTI_InitStruct.EXTI_Line     =   EXTI_Line2;
-	EXTI_Init( &EXTI_InitStruct );									    					//KEY4-PB2
-	
-	
-	
-	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI3_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority   =   2;
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority          =   2;
-	NVIC_InitStruct.NVIC_IRQChannelCmd                  =   ENABLE;
-	NVIC_Init( &NVIC_InitStruct );									    					//KEY1-PI3
-	
-	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI15_10_IRQn;
-	NVIC_Init( &NVIC_InitStruct );									    					//KEY2-PB12  KEY3-PD11
-	
-	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI2_IRQn;
-	NVIC_Init( &NVIC_InitStruct );									    					//KEY4-PB2
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOI, EXTI_PinSource3);
+//	EXTI_InitStruct.EXTI_Line     =   EXTI_Line3;
+//	EXTI_InitStruct.EXTI_Mode     =   EXTI_Mode_Interrupt;
+//	EXTI_InitStruct.EXTI_Trigger  =   EXTI_Trigger_Falling;
+//	EXTI_InitStruct.EXTI_LineCmd  =   ENABLE;
+//	EXTI_Init( &EXTI_InitStruct );									   					 	//KEY1-PI3
+//	
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource12);
+//	EXTI_InitStruct.EXTI_Line     =   EXTI_Line12;
+//	EXTI_Init( &EXTI_InitStruct );									    					//KEY2-PB12
+//	
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource11);
+//	EXTI_InitStruct.EXTI_Line     =   EXTI_Line11;
+//	EXTI_Init( &EXTI_InitStruct );									    					//KEY3-PD11
+//	
+//	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource2);
+//	EXTI_InitStruct.EXTI_Line     =   EXTI_Line2;
+//	EXTI_Init( &EXTI_InitStruct );									    					//KEY4-PB2
+//	
+//	
+//	
+//	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI3_IRQn;
+//	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority   =   2;
+//	NVIC_InitStruct.NVIC_IRQChannelSubPriority          =   2;
+//	NVIC_InitStruct.NVIC_IRQChannelCmd                  =   ENABLE;
+//	NVIC_Init( &NVIC_InitStruct );									    					//KEY1-PI3
+//	
+//	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI15_10_IRQn;
+//	NVIC_Init( &NVIC_InitStruct );									    					//KEY2-PB12  KEY3-PD11
+//	
+//	NVIC_InitStruct.NVIC_IRQChannel                     =   EXTI2_IRQn;
+//	NVIC_Init( &NVIC_InitStruct );									    					//KEY4-PB2
 	
 	
 }
@@ -198,10 +228,10 @@ void EXTI2_IRQHandler(void)
 {
 	
 	if( EXTI_GetITStatus(EXTI_Line2) != RESET && (GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_2) == 0) )        {//KEY4
-		
-//		KEY_POSITION.key4 = !KEY_POSITION.key4;
-		led_blue_toggle();
 		EXTI_ClearITPendingBit(EXTI_Line2);
+		KEY_POSITION.key4 = !KEY_POSITION.key4;
+		led_blue_toggle();
+		
 	}
 	
 }
@@ -210,18 +240,18 @@ void EXTI15_10_IRQHandler(void)
 {
 	
 	if( EXTI_GetITStatus(EXTI_Line11) != RESET && (GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_11) == 0) )        {//KEY3
-		
-//		KEY_POSITION.key3 = !KEY_POSITION.key3;
-		led_red_toggle();
 		EXTI_ClearITPendingBit(EXTI_Line11);
+		KEY_POSITION.key3 = !KEY_POSITION.key3;
+		led_red_toggle();
+		
 	}
 	
 	
 	else if( EXTI_GetITStatus(EXTI_Line12) != RESET && (GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12) == 0))        {//KEY2
-		
-//		KEY_POSITION.key2 = !KEY_POSITION.key2;
-		led_green_toggle();
 		EXTI_ClearITPendingBit(EXTI_Line12);
+		KEY_POSITION.key2 = !KEY_POSITION.key2;
+		led_green_toggle();
+		
 	}
 	
 }
@@ -230,10 +260,10 @@ void EXTI3_IRQHandler(void)
 {
 	
 	if( EXTI_GetITStatus(EXTI_Line3) != RESET && (GPIO_ReadInputDataBit(GPIOI,GPIO_Pin_3) == 0) )        {//KEY1
-		
-//		KEY_POSITION.key1 = !KEY_POSITION.key1;
-		buzzer_toggle();
 		EXTI_ClearITPendingBit(EXTI_Line3);
+		KEY_POSITION.key1 = !KEY_POSITION.key1;
+//		buzzer_toggle();
+		
 	}
 	
 }
